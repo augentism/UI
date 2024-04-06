@@ -28,6 +28,7 @@ with open('data.txt','r') as f: #loading previously saved data
 
 #button command function
 def measure():
+
     data = importFromUART()
 
     speedNum = data[len(data) - 1]
@@ -48,7 +49,7 @@ def importFromUART():
     ser = serial.Serial('COM4', 115200, timeout=None)
     #x = ser.read()          # read one byte
     #s = ser.read(10)        # read up to ten bytes (timeout)
-
+    ser.write(bytes("S[123.456789123]",'utf-8'))
     ser.reset_input_buffer()
 
     serialString = ""

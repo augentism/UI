@@ -9,7 +9,7 @@ NavigationToolbar2Tk)
 import serial
 import time
 import os
-
+import re
 import sys
 
 #Btech 135 at 9:45
@@ -18,7 +18,7 @@ check = os.path.exists('data.txt')
 if not check:
     f = open('data.txt','w')
     f.close()
-dataGlobal = []
+dataGlobal = [0] * 1002
 
 with open('data.txt','r') as f: #loading previously saved data
         array = []
@@ -41,14 +41,30 @@ def measure():
     graphData.pop(len(data)-1)
     plot(graphData)
 
+
+
+
 #get data from UART
 def importFromUART():
     #print("importing CSV data")
     #dummy data to test graphing
+    startTime = time.perf_counter()
 
     ser = serial.Serial('COM4', 115200, timeout=None)
     #x = ser.read()          # read one byte
     #s = ser.read(10)        # read up to ten bytes (timeout)
+    global dataGlobal
+    global woodLength
+    lenstr = woodLength.get()
+    if(re.match(r'[0-9]+\.?[0-9]*',lenstr) == None or len(lenstr) == 0):
+        error = Toplevel(root)
+        errormsg = Label(error, text="invalid length input")
+        acceptButton = ttk.Button(error, text="Ok", command=error.destroy)
+        errormsg.pack()
+        acceptButton.pack()
+        return dataGlobal
+
+
     ser.write(bytes("S[123.456789123]",'utf-8'))
     ser.reset_input_buffer()
 
@@ -59,6 +75,11 @@ def importFromUART():
     foundData = False
 
     while 1:
+        currentTime = time.perf_counter()
+
+        if((currentTime - startTime) > 5.0):
+            break
+
         try:
             serialString = ser.readline()   # read a '\n' terminated line
         except:
@@ -67,11 +88,13 @@ def importFromUART():
 
         try:
             newString = serialString.decode('utf-8')
+            #print(newString)
             try:
                 intVal = int(newString)
-            except:
+            except ValueError:
                 print("could not get integerVal\n")
-                intVal = 0
+                print(newString)
+                intVal = newString
 
             #print(serialString.decode("Ascii"))
             if (foundData == False):
@@ -105,7 +128,7 @@ def importFromUART():
     # testData = [1000] * 1002
     # testData[1000] = 176
     # testData[1001] = 3296
-
+    #print(dataBuffer)
     return dataBuffer
 
 #display speed to button
@@ -146,7 +169,10 @@ def loadData():
     work[len(work)-1] = work[len(work)-1].strip()
     workNum = []
     for string in work:
-        workNum.append(int(string))
+        try:
+            workNum.append(int(string))
+        except ValueError:
+            workNum.append(string)
     #print(workNum)
     global dataGlobal
     dataGlobal = workNum.copy()

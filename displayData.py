@@ -63,9 +63,18 @@ def importFromUART():
         errormsg.pack()
         acceptButton.pack()
         return dataGlobal
+    lev = float(lenstr)
+    s2 = str(lev)
+    if len(s2) < 13:
+        while len(s2) <13:
+            s2 = s2 + '0'
+    if len(s2) > 13:
+        s2 = s2[:13]
+    
+    out = "S[" + s2 + ']'
 
 
-    ser.write(bytes("S[123.456789123]",'utf-8'))
+    ser.write(bytes(out,'utf-8'))
     ser.reset_input_buffer()
 
     serialString = ""

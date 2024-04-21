@@ -23,7 +23,7 @@ if not check:
     f = open('data.txt','w')
     f.close()
 dataGlobal = [0] * 1002
-
+array = []
 with open('data.txt','r') as f: #loading previously saved data
         array = []
         for line in f:
@@ -233,6 +233,7 @@ def saveMeasure():
         with open('data.txt','a') as f:
             global woodName
             stri = woodName.get()
+            stri = stri + ',' + woodLength.get()
             for i in dataGlobal:
                 stri = stri + ',' + str(i)
             line = stri + '\n'
@@ -247,7 +248,17 @@ def loadData():
     tuple = lsBox.curselection()
     index = tuple[0]
     work = array[index].copy()
+    global woodName
+    woodName.delete(0,len(woodName.get()))
+    woodName.insert(0,work[0])
     work.pop(0)
+    #print(work)
+    global woodLength
+    woodLength.delete(0,len(woodLength.get()))
+    woodLength.insert(0,work[0])
+    work.pop(0)
+
+
     worklen = len(work)
     work[worklen-1] = work[worklen-1].strip()
     workNum = []
@@ -260,6 +271,7 @@ def loadData():
     global dataGlobal
     dataGlobal = workNum.copy()
 
+    
     speedNum = workNum[1]
     sampleNum = workNum[0]
     displayData(sampleNum,speedNum)
@@ -269,7 +281,18 @@ def loadData():
     graphData.pop(0)
     graphData.pop(0)
     plot(graphData, sampleNum)
-
+def deleteData():
+    tuple = lsBox.curselection()
+    index = tuple[0]
+    lsBox.delete(index)
+    array.pop(index)
+    tempTXT = []
+    with open('data.txt','r') as f:
+        tempTXT = f.readlines
+        tempTXT.pop(index)
+    with open('data.txt','w') as f:
+        f.writelines(tempTXT)
+    
 #define root
 root = Tk()
 root.title("test app")
@@ -324,7 +347,7 @@ powerVal.grid(row=6,column=1)
 
 
 #button to take measurement
-plot_Button = ttk.Button(root, text="Prime for Measurement", command=measure)
+plot_Button = ttk.Button(root, text="Measure", command=measure)
 plot_Button.grid(row=7,column=1)
 
 #speed output label
@@ -363,7 +386,9 @@ for obj in serialPorts:
     serialBox.insert(count, obj + " : " + serialInfo[count])
     count+=1
 
+deleteButton = ttk.Button(root,text="Delete Measurement", command=deleteData)
 
+deleteButton.grid(row=13,column=1)
 
 
 

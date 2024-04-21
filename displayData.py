@@ -11,6 +11,12 @@ import time
 import os
 import re
 import sys
+import serial.tools.list_ports
+
+
+serialPorts = [comport.device for comport in serial.tools.list_ports.comports()]
+serialInfo = [comport.description for comport in serial.tools.list_ports.comports()]
+#serialPorts = [0,1,2,3,4,5]
 
 check = os.path.exists('data.txt')
 if not check:
@@ -23,6 +29,19 @@ with open('data.txt','r') as f: #loading previously saved data
         for line in f:
             array.append(line.split(','))
 
+
+def scanSerial():
+    global serialPorts
+    global serialBox
+    global serialInfo
+    serialPorts = [comport.device for comport in serial.tools.list_ports.comports()]
+    serialInfo = [comport.description for comport in serial.tools.list_ports.comports()]
+    #print(serialPorts)
+    serialBox.delete(0,serialBox.size())
+    count=0
+    for obj in serialPorts:
+        serialBox.insert(count, obj + " : " + serialInfo[count])
+        count+=1
 
 #button command function
 def measure():
@@ -50,15 +69,27 @@ def measure():
 
 #get data from UART
 def importFromUART():
+    global dataGlobal
+    global woodLength
     #print("importing CSV data")
     #dummy data to test graphing
     startTime = time.perf_counter()
+    global serialBox
+    #print(serialBox.curselection())
+    serialName = serialPorts[serialBox.curselection()[0]]
+    print(serialName[1])
+    if(len(serialName) == 0):
+        error = Toplevel(root)
+        errormsg = Label(error, text="Please Select a Serial Input")
+        acceptButton = ttk.Button(error, text="Ok", command=error.destroy)
+        errormsg.pack()
+        acceptButton.pack()
+        return dataGlobal
 
-    ser = serial.Serial('COM5', 115200, timeout=None)
+    ser = serial.Serial(serialName, 115200, timeout=None)
     #x = ser.read()          # read one byte
     #s = ser.read(10)        # read up to ten bytes (timeout)
-    global dataGlobal
-    global woodLength
+    
     lenstr = woodLength.get()
     if(re.match(r'[0-9]+\.?[0-9]*',lenstr) == None or len(lenstr) == 0):
         error = Toplevel(root)
@@ -242,7 +273,7 @@ def loadData():
 #define root
 root = Tk()
 root.title("test app")
-root.geometry("500x900") 
+root.geometry("1200x900") 
 
 #create figure for plot
 fig = Figure(figsize = (7, 4), 
@@ -257,7 +288,7 @@ plot1.set_title("Received Signal")
 #Set up graph canvas
 canvas = FigureCanvasTkAgg(fig, master = root)
 canvas.draw() 
-canvas.get_tk_widget().pack() 
+canvas.get_tk_widget().grid(row=0,column=0) 
 
 woodLabel = ttk.Label(text="Wood Name")
 woodName = ttk.Entry(width=50)
@@ -265,10 +296,16 @@ woodName.insert(0,"Wood")
 lengthLabel = ttk.Label(text="Wood Length (cm)")
 woodLength = ttk.Entry(width=50)
 
-woodLabel.pack()
-woodName.pack()
-lengthLabel.pack()
-woodLength.pack()
+
+woodLabel.grid(row=1,column=1)
+woodName.grid(row=2,column=1)
+lengthLabel.grid(row=3,column=1)
+woodLength.grid(row=4,column=1)
+
+# woodLabel.pack(side = LEFT)
+# woodName.pack(side = LEFT)
+# lengthLabel.pack(side = RIGHT)
+# woodLength.pack(side = RIGHT)
 
 # threshlabel/threshVal deprecated for now
 #threshLabel = ttk.Label(text="Threshold")
@@ -280,30 +317,30 @@ powerVal.insert(0,"2.0")
 
 #threshLabel.pack()
 #threshVal.pack()
-powerLabel.pack()
-powerVal.pack()
+powerLabel.grid(row=5,column=1)
+powerVal.grid(row=6,column=1)
 
 
 
 
 #button to take measurement
 plot_Button = ttk.Button(root, text="Prime for Measurement", command=measure)
-plot_Button.pack()
+plot_Button.grid(row=7,column=1)
 
 #speed output label
 speed = StringVar()
 speed.set("No Speed Yet")
 speedLabel = ttk.Label(root, textvariable=speed)
-speedLabel.pack()
+speedLabel.grid(row=8,column=1)
 
 #sample triggered output label
 sample = StringVar()
 sample.set("No Samples Yet")
 sampleLabel = ttk.Label(root, textvariable=sample)
-sampleLabel.pack()
+sampleLabel.grid(row=9,column=1)
 
 save_Button = ttk.Button(root, text="Save data", command=saveMeasure)
-save_Button.pack()
+save_Button.grid(row=10,column=1)
 
 #list data
 lsBox = Listbox(selectmode=SINGLE, width=40)
@@ -311,11 +348,28 @@ count = 0
 for arr in array:
     lsBox.insert(count, str(arr[0]))
     count+=1
-lsBox.pack()
+lsBox.grid(row=11,column=1)
 
 
 load_Button = ttk.Button(root, text="Load data", command=loadData)
-load_Button.pack()
+load_Button.grid(row=12,column=1)
+
+
+
+rescan_serial = ttk.Button(root, text="Rescan Serial Ports", command=scanSerial)
+serialBox = Listbox(selectmode=SINGLE,width = 40)
+count=0
+for obj in serialPorts:
+    serialBox.insert(count, obj + " : " + serialInfo[count])
+    count+=1
+
+
+
+
+
+rescan_serial.grid(row=9,column=0)
+serialBox.grid(row=11,column=0)
+
 
 #begin application loop
 root.mainloop()

@@ -80,7 +80,7 @@ def importFromUART():
     global powerVal
     
     
-    thresh = 50 #threshVal.get() deprecated with current STM code implementation, still send over UART to keep packet size/shape
+    thresh = "50" #threshVal.get() deprecated with current STM code implementation, still send over UART to keep packet size/shape
     power = powerVal.get()
     
     if len(thresh) < 4:

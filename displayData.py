@@ -18,13 +18,13 @@ serialPorts = [comport.device for comport in serial.tools.list_ports.comports()]
 serialInfo = [comport.description for comport in serial.tools.list_ports.comports()]
 #serialPorts = [0,1,2,3,4,5]
 
-check = os.path.exists('data.txt')
+check = os.path.exists('data.csv')
 if not check:
-    f = open('data.txt','w')
+    f = open('data.csv','w')
     f.close()
 dataGlobal = [0] * 1002
 array = []
-with open('data.txt','r') as f: #loading previously saved data
+with open('data.csv','r') as f: #loading previously saved data
         array = []
         for line in f:
             array.append(line.split(','))
@@ -230,7 +230,7 @@ def saveMeasure():
     print(str(len(dataGlobal)))
     if(len(dataGlobal) > 100):
         print("saving data")
-        with open('data.txt','a') as f:
+        with open('data.csv','a') as f:
             global woodName
             stri = woodName.get()
             stri = stri + ',' + woodLength.get()
@@ -287,10 +287,10 @@ def deleteData():
     lsBox.delete(index)
     array.pop(index)
     tempTXT = []
-    with open('data.txt','r') as f:
+    with open('data.csv','r') as f:
         tempTXT = f.readlines
         tempTXT.pop(index)
-    with open('data.txt','w') as f:
+    with open('data.csv','w') as f:
         f.writelines(tempTXT)
     
 #define root

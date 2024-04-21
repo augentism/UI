@@ -76,6 +76,13 @@ def importFromUART():
     startTime = time.perf_counter()
     global serialBox
     #print(serialBox.curselection())
+    if(len(serialBox.curselection())):
+        error = Toplevel(root)
+        errormsg = Label(error, text="Please Select a Serial Input")
+        acceptButton = ttk.Button(error, text="Ok", command=error.destroy)
+        errormsg.pack()
+        acceptButton.pack()
+        return dataGlobal
     serialName = serialPorts[serialBox.curselection()[0]]
     print(serialName[1])
     if(len(serialName) == 0):

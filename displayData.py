@@ -233,24 +233,32 @@ def displayData(sampleNum, speedNum):
 
 #plot data
 def plot(plotData, sampleNum): 
+    # convert data to voltage
+    
+    voltages = [];
+    for x in range(len(plotData)):
+        voltages.append(3.3*plotData[x]/65535)
+
     #plot data
     numbltime = [];
     for x in range(len(plotData)):
         numbltime.append(x * .78125)
     plot1.clear()
     #print(numbltime)
-    plot1.plot(numbltime,plotData)
+    plot1.plot(numbltime,voltages)
     
-    trimmedarray = plotData[30:len(plotData)-60]
+    trimmedarray = voltages[30:len(voltages)-60]
     
-    ymax = max(trimmedarray) + 500
-    ymin = min(trimmedarray) - 500
+    ymax = max(voltages)*1.1
+    ymin = min(voltages)*0.9
+    #ymax = 1.7
+    #ymin = 1.4
     
     sampleTime = sampleNum * .78125
     plot1.set_xlim(0* .78125,940 * .78125)
     plot1.set_ylim(ymin, ymax)
     plot1.set_xlabel("Time (us)")
-    plot1.set_ylabel("Amplitude")
+    plot1.set_ylabel("Voltage (V)")
     plot1.set_title("Received Signal")
     plot1.axvline(x=(sampleTime), ymin=0, ymax = 65000, linewidth=2, color='k')
 
@@ -322,7 +330,7 @@ def deleteData():
     array.pop(index)
     tempTXT = []
     with open('data.csv','r') as f:
-        tempTXT = f.readlines
+        tempTXT = f.readlines()
         tempTXT.pop(index)
     with open('data.csv','w') as f:
         f.writelines(tempTXT)

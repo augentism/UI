@@ -303,7 +303,13 @@ def deleteData():
 #define root
 root = Tk()
 root.title("test app")
-root.geometry("1200x900") 
+root.geometry("1060x650") 
+
+left_frame = Frame(root, width=700, height=400)
+right_frame = Frame(root, width=600, height=400)
+
+left_frame.grid(row=0,column=0)
+right_frame.grid(row=0,column=1)
 
 #create figure for plot
 fig = Figure(figsize = (7, 4), 
@@ -316,21 +322,24 @@ plot1.set_ylabel("Amplitude")
 plot1.set_title("Received Signal")
 
 #Set up graph canvas
-canvas = FigureCanvasTkAgg(fig, master = root)
+canvas = FigureCanvasTkAgg(fig, master = left_frame)
 canvas.draw() 
 canvas.get_tk_widget().grid(row=0,column=0) 
 
-woodLabel = ttk.Label(text="Wood Name")
-woodName = ttk.Entry(width=50)
+
+
+
+woodLabel = ttk.Label(right_frame,text="Wood Name")
+woodName = ttk.Entry(right_frame,width=50)
 woodName.insert(0,"Wood")
-lengthLabel = ttk.Label(text="Wood Length (cm)")
-woodLength = ttk.Entry(width=50)
+lengthLabel = ttk.Label(right_frame,text="Wood Length (cm)")
+woodLength = ttk.Entry(right_frame,width=50)
 
 
-woodLabel.grid(row=1,column=1)
-woodName.grid(row=2,column=1)
-lengthLabel.grid(row=3,column=1)
-woodLength.grid(row=4,column=1)
+woodLabel.grid(row=1,column=0)
+woodName.grid(row=2,column=0)
+lengthLabel.grid(row=3,column=0)
+woodLength.grid(row=4,column=0)
 
 # woodLabel.pack(side = LEFT)
 # woodName.pack(side = LEFT)
@@ -341,48 +350,48 @@ woodLength.grid(row=4,column=1)
 #threshLabel = ttk.Label(text="Threshold")
 #threshVal = ttk.Entry(width=50)
 #threshVal.insert(0,"50")
-powerLabel = ttk.Label(text="Power")
-powerVal = ttk.Entry(width=50)
+powerLabel = ttk.Label(right_frame,text="Power")
+powerVal = ttk.Entry(right_frame,width=50)
 powerVal.insert(0,"2.0")
 
 #threshLabel.pack()
 #threshVal.pack()
-powerLabel.grid(row=5,column=1)
-powerVal.grid(row=6,column=1)
+powerLabel.grid(row=5,column=0)
+powerVal.grid(row=6,column=0)
 
 
 
 
 #button to take measurement
-plot_Button = ttk.Button(root, text="Measure", command=measure)
-plot_Button.grid(row=7,column=1)
+plot_Button = ttk.Button(right_frame, text="Measure", command=measure)
+plot_Button.grid(row=7,column=0)
 
 #speed output label
 speed = StringVar()
 speed.set("No Speed Yet")
-speedLabel = ttk.Label(root, textvariable=speed)
-speedLabel.grid(row=8,column=1)
+speedLabel = ttk.Label(right_frame, textvariable=speed)
+speedLabel.grid(row=8,column=0)
 
 #sample triggered output label
 sample = StringVar()
 sample.set("No Samples Yet")
-sampleLabel = ttk.Label(root, textvariable=sample)
-sampleLabel.grid(row=9,column=1)
+sampleLabel = ttk.Label(right_frame, textvariable=sample)
+sampleLabel.grid(row=9,column=0)
 
-save_Button = ttk.Button(root, text="Save data", command=saveMeasure)
-save_Button.grid(row=10,column=1)
+save_Button = ttk.Button(right_frame, text="Save data", command=saveMeasure)
+save_Button.grid(row=10,column=0)
 
 #list data
-lsBox = Listbox(selectmode=SINGLE, width=40)
+lsBox = Listbox(right_frame,selectmode=SINGLE, width=40)
 count = 0
 for arr in array:
     lsBox.insert(count, str(arr[0]))
     count+=1
-lsBox.grid(row=11,column=1)
+lsBox.grid(row=11,column=0)
 
 
-load_Button = ttk.Button(root, text="Load data", command=loadData)
-load_Button.grid(row=12,column=1)
+load_Button = ttk.Button(right_frame, text="Load data", command=loadData)
+load_Button.grid(row=12,column=0)
 
 
 
@@ -393,9 +402,9 @@ for obj in serialPorts:
     serialBox.insert(count, obj + " : " + serialInfo[count])
     count+=1
 
-deleteButton = ttk.Button(root,text="Delete Measurement", command=deleteData)
+deleteButton = ttk.Button(right_frame,text="Delete Measurement", command=deleteData)
 
-deleteButton.grid(row=13,column=1)
+deleteButton.grid(row=13,column=0)
 
 
 

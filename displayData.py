@@ -2,6 +2,7 @@
 
 from tkinter import *
 from tkinter import ttk
+import tkinter as tk
 from matplotlib.figure import Figure 
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,  
 NavigationToolbar2Tk) 
@@ -16,6 +17,14 @@ import serial.tools.list_ports
 
 serialPorts = [comport.device for comport in serial.tools.list_ports.comports()]
 serialInfo = [comport.description for comport in serial.tools.list_ports.comports()]
+serialDict = dict()
+serialList = []
+for i in range(len(serialPorts)):
+    #serialDict.append((serialPorts[i] + ' : ' + serialInfo[i] , serialPorts[i]))
+    serialList.append(serialPorts[i] + ' : ' + serialInfo[i])
+    serialDict[serialPorts[i] + ' : ' + serialInfo[i]] = serialPorts[i] 
+#print(serialDict)
+
 #serialPorts = [0,1,2,3,4,5]
 
 check = os.path.exists('data.csv')
@@ -34,14 +43,22 @@ def scanSerial():
     global serialPorts
     global serialBox
     global serialInfo
+    global serialList
+    global serialDict
     serialPorts = [comport.device for comport in serial.tools.list_ports.comports()]
     serialInfo = [comport.description for comport in serial.tools.list_ports.comports()]
     #print(serialPorts)
-    serialBox.delete(0,serialBox.size())
-    count=0
-    for obj in serialPorts:
-        serialBox.insert(count, obj + " : " + serialInfo[count])
-        count+=1
+    #serialBox.delete(0,serialBox.size())
+    # count=0
+    # for obj in serialPorts:
+    #     serialBox.insert(count, obj + " : " + serialInfo[count])
+    #     count+=1
+    serialList = []
+    serialDict = dict()
+    for i in range(len(serialPorts)):
+        serialList.append(serialPorts[i] + ' : ' + serialInfo[i])
+        serialDict[serialPorts[i] + ' : ' + serialInfo[i]] = serialPorts[i] 
+    serialBox['values'] = serialList
 
 #button command function
 def measure():
@@ -76,15 +93,25 @@ def importFromUART():
     startTime = time.perf_counter()
     global serialBox
     #print(serialBox.curselection())
-    if(len(serialBox.curselection()) == 0):
+    # if(len(serialBox.curselection()) == 0):
+    #     error = Toplevel(root)
+    #     errormsg = Label(error, text="Please Select a Serial Input")
+    #     acceptButton = ttk.Button(error, text="Ok", command=error.destroy)
+    #     errormsg.pack()
+    #     acceptButton.pack()
+    #     return dataGlobal
+    # serialName = serialPorts[serialBox.curselection()[0]]
+    #print(serialName[1])
+    
+    serialName = serialSelection.get()
+    print(serialName)
+    if serialName not in serialDict:
         error = Toplevel(root)
         errormsg = Label(error, text="Please Select a Serial Input")
         acceptButton = ttk.Button(error, text="Ok", command=error.destroy)
         errormsg.pack()
         acceptButton.pack()
         return dataGlobal
-    serialName = serialPorts[serialBox.curselection()[0]]
-    print(serialName[1])
     if(len(serialName) == 0):
         error = Toplevel(root)
         errormsg = Label(error, text="Please Select a Serial Input")
@@ -350,7 +377,7 @@ woodLength.grid(row=4,column=0)
 #threshLabel = ttk.Label(text="Threshold")
 #threshVal = ttk.Entry(width=50)
 #threshVal.insert(0,"50")
-powerLabel = ttk.Label(right_frame,text="Power")
+powerLabel = ttk.Label(right_frame,text="Power Detection Threshold")
 powerVal = ttk.Entry(right_frame,width=50)
 powerVal.insert(0,"2.0")
 
@@ -396,11 +423,17 @@ load_Button.grid(row=12,column=0)
 
 
 rescan_serial = ttk.Button(root, text="Rescan Serial Ports", command=scanSerial)
-serialBox = Listbox(selectmode=SINGLE,width = 40)
-count=0
-for obj in serialPorts:
-    serialBox.insert(count, obj + " : " + serialInfo[count])
-    count+=1
+
+
+# serialBox = Listbox(selectmode=SINGLE,width = 40)
+# count=0
+# for obj in serialPorts:
+#     serialBox.insert(count, obj + " : " + serialInfo[count])
+#     count+=1
+
+serialSelection = tk.StringVar()
+serialBox = ttk.Combobox(root, textvariable=serialSelection, width = 100)
+serialBox['values'] = serialList
 
 deleteButton = ttk.Button(right_frame,text="Delete Measurement", command=deleteData)
 
